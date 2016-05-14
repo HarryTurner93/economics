@@ -1,8 +1,7 @@
-Settlement[] settlements;
-Resource[] resources;
+ArrayList<Settlement> settlements;
+ArrayList<Resource> resources;
 
 int NUM_RESOURCES = 50;
-int NUM_SETTLEMENTS = 3;
 
 //Icons for general use throughout the program
 PImage treeIcon;
@@ -21,8 +20,8 @@ void setup()
   goldIcon = loadImage("gold.png");
   cowIcon = loadImage("cow.png");
   
-  //Intialise the vector of resources
-  resources = new Resource[NUM_RESOURCES];
+  //Intialise the array of resources
+  resources = new ArrayList<Resource>();
   
   //Initialise all resources in the array with a random resource
   for(int i = 0; i < NUM_RESOURCES; i++)
@@ -31,42 +30,45 @@ void setup()
 
     if(select < 3)
     {
-      resources[i] = new Gold(int(random(100,900)), int(random(100,900)));
+      Resource resource = new Gold(int(random(100,900)), int(random(100,900)));
+      resources.add(resource);
     }
     else if(select < 14)
     {
-      resources[i] = new Cow(int(random(100,900)), int(random(100,900)));
+      Resource resource = new Cow(int(random(100,900)), int(random(100,900)));
+      resources.add(resource);
     }
     else
     {
-      resources[i] = new Tree(int(random(100,900)), int(random(100,900)));
+      Resource resource = new Tree(int(random(100,900)), int(random(100,900)));
+      resources.add(resource);
     }
+    
   }
   
   //Initialise settlements
-  settlements = new Settlement[NUM_SETTLEMENTS];
-  for(int i = 0; i < NUM_SETTLEMENTS; i++)
-  {
-    settlements[i] = new Settlement(int(random(100,900)), int(random(100,900)));
-  }
+  settlements = new ArrayList<Settlement>();
   
+  //Get the initial timer value
   globalTimer = millis();
 }
 
 void update()
 {
+  //Runs once every minute
   if(millis() - globalTimer > 60000)
   {
-    for(int i = 0; i < NUM_SETTLEMENTS; i++)
+    for(int i = 0; i < settlements.size(); i++)
     {
-      settlements[i].eat();
+      settlements.get(i).eat();
       globalTimer = millis();
     }
   }
-  //Update all the settlements
-  for(int i = 0; i < NUM_SETTLEMENTS; i++)
+  //Runs every loop
+  else
   {
-    settlements[i].update();
+    //Update all the settlements
+    for(int i = 0; i < settlements.size(); i++)  {  settlements.get(i).update();  }
   }
 }
 
@@ -79,18 +81,20 @@ void draw()
   background(255, 255, 255);
   
   //Draw all the resources
-  for(int i = 0; i < NUM_RESOURCES; i++)
-  {
-    resources[i].draw();
-  }
+  for(int i = 0; i < resources.size(); i++)  {  resources.get(i).draw();  }
   
   //Draw all the settlements
-  for(int i = 0; i < NUM_SETTLEMENTS; i++)
-  {
-    settlements[i].draw();
-  }
+  for(int i = 0; i < settlements.size(); i++)  {  settlements.get(i).draw();  }
   
-  textSize(24);
-  fill(0,0,0);
+  // Draw the time in the top left corner
+  textSize(24);  fill(0,0,0);
   text(60 - ((millis() - globalTimer)/1000), (20), (20));
+}
+
+//The mouse click places a settlement, the variable 
+// currentSettlementPlaced keeps track of which settlement is being placed.
+void mouseClicked()
+{
+   Settlement settlement = new Settlement(mouseX, mouseY);
+   settlements.add(settlement);
 }

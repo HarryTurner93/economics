@@ -22,29 +22,28 @@ class Settlement
   //Constructor - Set position variables
   Settlement(int x, int y)
   {
-    //Pick a random colour that is light
-    float red = random(150, 255);
-    float green = red + random(-50, 50);
-    if(green > 255) green = 255;
-    float blue = red + random(-50, 50);
-    if(blue > 255) blue = 255;
-    
+    //Pick a random colour that is light, this colour will be the colour for the settlement and all it's villagers
+    float red = random(150, 255);  float green = red + random(-50, 50);
+    if(green > 255) green = 255;  float blue = red + random(-50, 50);  if(blue > 255) blue = 255;
     colour_ = color(int(red), int(green), int(blue));
+
+    //Initialise the villagers array
+    villagers_ = new ArrayList<Villager>();
     
-    //Set the location and check it doesn't collide with any resources
+    //Initialise the outposts array
+    outposts_ = new ArrayList<Outpost>();
+    
+    //Set the location
     location_ = new PVector(x, y);
     
-    //Initialise all villagers in the array
-    villagers_ = new ArrayList<Villager>();
+    //Create as many villagers as required
     for(int i = 0; i < NUM_VILLAGERS_START; i++)
     {
       Villager villager = new Villager(int(location_.x), int(location_.y), colour_, this);
       villagers_.add(villager);
     }
     
-    //Initialise all outposts in the array
-    outposts_ = new ArrayList<Outpost>();
-    
+    //Set various variables
     wantCow = wantTree = wantGold = true;
     wantOutpost = wantVillager = false;
     money = 100;
@@ -57,7 +56,7 @@ class Settlement
   }
   
   void update()
-  {
+  { 
     //Update all the villagers
     for(int i = 0; i < villagers_.size(); i++)
     {
@@ -66,7 +65,6 @@ class Settlement
     
     //Settlement Logic
      
-    
     //Determine requirements
    
     //5 villagers per outpost, determine outpost needs
@@ -294,22 +292,22 @@ class Villager
   int checkResourceCollision()
   {
     //Check all the resources for collisions
-    for(int i = 0; i < NUM_RESOURCES; i++)
+    for(int i = 0; i < resources.size(); i++)
     {
-      if((location_.x > resources[i].location_.x)&&(location_.x < resources[i].location_.x+resources[i].width_)&&(location_.y > resources[i].location_.y)&&(location_.y < resources[i].location_.y+resources[i].height_))
+      if((location_.x > resources.get(i).location_.x)&&(location_.x < resources.get(i).location_.x+resources.get(i).width_)&&(location_.y > resources.get(i).location_.y)&&(location_.y < resources.get(i).location_.y+resources.get(i).height_))
       {
         //If a resource is hit, delay for a while and return the code of the resource for later, set state 1 to head for home
-        int code = resources[i].getCode();
+        int code = resources.get(i).getCode();
         
         switch(code)
         {
           case 0:break;
-          case 1: if((treeSkill < goldSkill)||(treeSkill < cowSkill)){return 0;} delay = (1200-treeSkill); treeSkill+=50; if(treeSkill > 1200) treeSkill = 1200; resources[i].deduct(); break;
-          case 2: if((goldSkill < cowSkill)||(goldSkill < treeSkill)){return 0;}delay = (2000-goldSkill); goldSkill+=50; if(goldSkill > 2000) goldSkill = 2000; resources[i].deduct();break;
-          case 3: if((cowSkill < treeSkill)||(cowSkill < goldSkill)){return 0;}delay = (1000-cowSkill); cowSkill+=50; if(cowSkill > 1000) cowSkill = 1000; resources[i].deduct();break;
+          case 1: if((treeSkill < goldSkill)||(treeSkill < cowSkill)){return 0;} delay = (1200-treeSkill); treeSkill+=50; if(treeSkill > 1200) treeSkill = 1200; resources.get(i).deduct(); break;
+          case 2: if((goldSkill < cowSkill)||(goldSkill < treeSkill)){return 0;}delay = (2000-goldSkill); goldSkill+=50; if(goldSkill > 2000) goldSkill = 2000; resources.get(i).deduct();break;
+          case 3: if((cowSkill < treeSkill)||(cowSkill < goldSkill)){return 0;}delay = (1000-cowSkill); cowSkill+=50; if(cowSkill > 1000) cowSkill = 1000; resources.get(i).deduct();break;
         }
         state = 1;
-        return resources[i].getCode();
+        return resources.get(i).getCode();
       }
     }
     
@@ -320,14 +318,14 @@ class Villager
   int checkSettlementCollision()
   {
     //Check all the settlements for collisions
-    for(int i = 0; i < NUM_SETTLEMENTS; i++)
+    for(int i = 0; i < settlements.size(); i++)
     {
-      if(settlements[i] != homeSettlement_)
+      if(settlements.get(i) != homeSettlement_)
       {
-        if((location_.x > settlements[i].location_.x-40)&&(location_.x < settlements[i].location_.x+40)&&(location_.y > settlements[i].location_.y-40)&&(location_.y < settlements[i].location_.y+40))
+        if((location_.x > settlements.get(i).location_.x-40)&&(location_.x < settlements.get(i).location_.x+40)&&(location_.y > settlements.get(i).location_.y-40)&&(location_.y < settlements.get(i).location_.y+40))
         {
           //If a settlement is hit, delay for a while and return the code of the resource for later, set state 1 to head for home
-          int tradeValue = settlements[i].trade(homeSettlement_);
+          int tradeValue = settlements.get(i).trade(homeSettlement_);
           if (tradeValue != 0) 
           {
             state = 2;
@@ -335,7 +333,7 @@ class Villager
           }
           else state = 0;
           
-          lastTrader = settlements[i];
+          lastTrader = settlements.get(i);
           
           return tradeValue;
         }
